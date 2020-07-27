@@ -8,12 +8,16 @@ from data import util
 import numpy as np
 from utils.config import opt
 
-
+# 去正则化,img维度为[[B,G,R],H,W],因为caffe预训练模型输入为BGR 0-255图片，pytorch预训练模型采用RGB 0-1图片
 def inverse_normalize(img):
     if opt.caffe_pretrain:
+        # [122.7717, 115.9465, 102.9801]reshape为[3,1,1]与img维度相同就可以相加了，
+        # pytorch_normalize之前有减均值预处理，现在还原回去。
         img = img + (np.array([122.7717, 115.9465, 102.9801]).reshape(3, 1, 1))
+        # 将BGR转换为RGB图片（python [::-1]为逆序输出）
         return img[::-1, :, :]
     # approximate un-normalize for visualize
+    # pytorch_normalze中标准化为减均值除以标准差，现在乘以标准差加上均值还原回去，转换为0-255
     return (img * 0.225 + 0.45).clip(min=0, max=1) * 255
 
 
