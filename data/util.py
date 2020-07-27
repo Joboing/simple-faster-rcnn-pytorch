@@ -64,9 +64,12 @@ def resize_bbox(bbox, in_size, out_size):
         Bounding boxes rescaled according to the given image shapes.
 
     """
+    # 根据图片resize的情况来缩放bbox
     bbox = bbox.copy()
+    #  #获得与原图同样的缩放比
     y_scale = float(out_size[0]) / in_size[0]
     x_scale = float(out_size[1]) / in_size[1]
+    # #按与原图同等比例缩放bbox
     bbox[:, 0] = y_scale * bbox[:, 0]
     bbox[:, 2] = y_scale * bbox[:, 2]
     bbox[:, 1] = x_scale * bbox[:, 1]
@@ -99,16 +102,17 @@ def flip_bbox(bbox, size, y_flip=False, x_flip=False):
         Bounding boxes flipped according to the given flips.
 
     """
-    H, W = size
+    # 根据图片flip的情况来flip bbox
+    H, W = size #缩放后图片的size
     bbox = bbox.copy()
-    if y_flip:
+    if y_flip: #进行垂直翻转
         y_max = H - bbox[:, 0]
         y_min = H - bbox[:, 2]
         bbox[:, 0] = y_min
         bbox[:, 2] = y_max
-    if x_flip:
+    if x_flip: #进行水平翻转
         x_max = W - bbox[:, 1]
-        x_min = W - bbox[:, 3]
+        x_min = W - bbox[:, 3] #计算水平翻转后左下角和右上角的坐标
         bbox[:, 1] = x_min
         bbox[:, 3] = x_max
     return bbox
@@ -267,10 +271,13 @@ def random_flip(img, y_random=False, x_random=False,
             horizontal direction or not.
 
     """
+    # 数据增强，随机翻转
     y_flip, x_flip = False, False
     if y_random:
         y_flip = random.choice([True, False])
+    # 随机选择图片是否进行水平翻转
     if x_random:
+        # python [::-1]为逆序输出，这里指水平翻转
         x_flip = random.choice([True, False])
 
     if y_flip:
@@ -282,6 +289,7 @@ def random_flip(img, y_random=False, x_random=False,
         img = img.copy()
 
     if return_param:
+        #返回img和x_flip(为了让bbox有同样的水平翻转操作)
         return img, {'y_flip': y_flip, 'x_flip': x_flip}
     else:
         return img
